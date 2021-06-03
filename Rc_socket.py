@@ -16,21 +16,6 @@ ip = '13.48.157.80'
 port = 9999
 
 
-# 메인스레드 첫번째 클라이언트 연결
-
-class MetaSingleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(MetaSingleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class Settings(MetaSingleton):
-    def __init__(self):
-        self.path = '/home/pi/Desktop/picture'
-
 
 # rc카 전진 -> 사진 캡처 -> 파일이름 저장 후 전송
 def rc_repeat():
@@ -107,42 +92,41 @@ class MainThread(threading.Thread):
         self.file_queue = file_queue
         self.status_queue = status_queue
 
-    def receiver(self, file_queue, status_queue):
+
+    def _receiver(self, file_queue):
         """
-        서버로부터 받은 값에 따라 차량을 제어하고 차량의 현재 상태를 업데이트 한 뒤 저장한다.
-        서버로부터 받은 값이 있을때만 값을 차량을 제어한다.
+        서버로부터 받은 값에 따라 차량을 제어한다.
 
         Args:
             file_queue: 서버로부터 받은 값을 저장하는 큐, Queue 객체
             status_queue: 차량 제어를 위한 큐, Queue 객체
         """
-        while True:
-            if self.file_queue.qsize() == 0:
-                continue
-            data = file_queue.get()
-            print(f'receiver:{data}')
-            print('receiver done')
+        data = file_queue.get()
+        print(f'receiver:{data}')
+        print('receiver done')
 
-            # 수신값에 따른 모듈제어
-            if data == '1' or data == '7':
-                water_pump.motorforward(1)
-                time.sleep(2)
+        # 수신값에 따른 모듈제어
+        if data == '1' or data == '7':
+            water_pump.motorforward(1)
+            time.sleep(2)
 
-            if data == '8':
-                water_pump.motor_two_forward(1)
-                time.sleep(2)
+        if data == '8':
+            water_pump.motor_two_forward(1)
+            time.sleep(2)
 
-            if data == '2':
-                time.sleep(1.5)
-
-            rc_repeat()
-            status_queue.put(1)
+        if data == '2':
+            time.sleep(1.5)
 
     def run(self):
         """
         스레드 실행을 위한 메서드
         """
-        self.receiver(self.file_queue,self.status_queue)
+        while True:
+            if self.file_queue.qsize() == 0:
+                continue
+            self._receiver(self.file_queue)
+            rc_repeat()
+            self.status_queue.put(1)
 
 
 def run():
