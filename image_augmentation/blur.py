@@ -102,9 +102,10 @@ def blur_json(path, blur_size):
             image_blur(file_path, blur_size)
 
 if __name__=="__main__":
-    directory = input("폴더 경로('\\ 가 아닌 /로 표시된 경로'): ")
+    directory = input("폴더 경로: ")
+    directory = re.sub(r"\\", "/", directory)
     size = input("블러 크기(홀수인 양의 정수): ")
     size = int(size)
-    if size % 2 == 0:
+    if size % 2 == 0 or size <= 0:
         raise TypeError("블러 크기는 홀수인 양의 정수여야 합니다.")
     blur_json(directory, size)

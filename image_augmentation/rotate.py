@@ -148,4 +148,5 @@ def rotation_json(path):
 
 if __name__=="__main__":
     directory = input("폴더 경로('\\ 가 아닌 /로 표시된 경로'): ")
+    directory = re.sub(r"\\", "/", directory)
     rotation_json(directory)
