@@ -20,14 +20,14 @@ port = 9999
 # rc카 전진 -> 사진 캡처 -> 파일이름 저장 후 전송
 def rc_repeat():
     rc_test.go_front()
-    # camera.imagefilesave()
+    camera.imagefilesave()
     time.sleep(1)
     aws.file_upload()
 
 
 class RcSocket(threading.Thread):
     """
-    서버와 소켓 통신을 위한 클래스. 런타임동안 종료하지 않는다.
+    서버와 소켓 통신을 위한 클래스
 
     Attrubutes:
         file_queue: 서버로부터 받은 값을 저장하는 큐, Queue 객체
@@ -42,12 +42,12 @@ class RcSocket(threading.Thread):
 
     def _clientsocket_send(self):
         """
-        라즈베리파이에 저장된 사진을 모두 연결된 서버로 전송함
+        라즈베리파이에 저장된 사진을 모두 연결된 서버로 전송한 뒤 삭제함
         """
         file_name = os.listdir('/home/pi/Desktop/picture')
         sendingfile = file_name[0].encode()
         self.clientSocket.send(sendingfile)
-        # camera.removeAllFile(path)
+        camera.removeAllFile(path)
 
     def _receive_data(self, file_queue):
         """
