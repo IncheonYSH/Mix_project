@@ -8,14 +8,6 @@ import time
 import water_pump
 from queue import Queue
 
-# 보낼 파일 이름 공간,경로 확보
-file_name = []
-path = '/home/pi/Desktop/picture'
-# 클라이언트 소켓 연결
-ip = '13.48.157.80'
-port = 9999
-
-
 
 # rc카 전진 -> 사진 캡처 -> 파일이름 저장 후 전송
 def rc_repeat():
@@ -41,10 +33,9 @@ class RcSocket(threading.Thread):
         self.status_queue = status_queue
 
     def _clientsocket_send(self):
-        """
-        라즈베리파이에 저장된 사진을 모두 연결된 서버로 전송한 뒤 삭제함
-        """
-        file_name = os.listdir('/home/pi/Desktop/picture')
+        # 경로가 하드코딩되어있지만 이부분을 수정할 일은 없다.
+        path = '/home/pi/Desktop/picture'
+        file_name = os.listdir(path)
         sendingfile = file_name[0].encode()
         self.clientSocket.send(sendingfile)
         camera.removeAllFile(path)
